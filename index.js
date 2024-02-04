@@ -91,6 +91,34 @@ async function collectNative(mainKey, key){
 }
 
 
+async function sellNFTOrder(key, price){
+     const privateKey = new Ed25519PrivateKey(key);
+     const account = Account.fromPrivateKey({ privateKey: privateKey })
+     const provider = new AptosConfig({network: Network.MAINNET})
+     const aptos = new Aptos(provider)
+     const collectionAddress = "0x3d94d2eb4aea99cdf051a817c1e9f31d2166c79ed301578c75c31e38d4be747e"
+     const balance = await aptos.getAccountOwnedTokensFromCollectionAddress({accountAddress: account.accountAddress, collectionAddress: collectionAddress})
+     const tx = await aptos.transaction.build.simple({
+         sender: account.accountAddress,
+         data: {
+         function: "0xd520d8669b0a3de23119898dcdff3e0a27910db247663646ad18cf16e44c6f5::coin_listing::batch_list_token_v2",
+         typeArguments: ["0x1::object::ObjectCore","0x1::aptos_coin::AptosCoin"],
+         functionArguments: [
+             [o], 
+             "0xb3e77042cc302994d7ae913d04286f61ecd2dbc4a73f6c7dbcb4333f3524b9d7",
+             [price]
+         ]
+         }
+     });
+     tx.rawTransaction.max_gas_amount = 2000n;
+     const committedTransaction = await aptos.signAndSubmitTransaction({
+         signer: account,
+         transaction: tx,
+     });
+     await delayTx(10, 20)  
+}
+
+
 
 
 for(let i = 0; privates.length > i; i++){
@@ -109,6 +137,12 @@ for(let i = 0; privates.length > i; i++){
         await collectNative(general.mainPrivateKey, privates[i])
         console.log(`Collect native succses for ${i+1}/${privates.length}`)
         await delayTx(general.delayAfterTXmin, general.delayAfterTXmax)
+    }
+    if(general.listNFT){
+        for(let i = 0; i < general.NFtToList; i++){
+            await sellNFTOrder(general.mainPrivateKey, general.price)
+            console.log(`NFT ${i+1}/${general.NFtToList} was listed`)
+        }
     }
     console.log(``)
     }catch(e){
