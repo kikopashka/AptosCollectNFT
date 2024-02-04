@@ -140,8 +140,12 @@ for(let i = 0; privates.length > i; i++){
     }
     if(general.listNFT){
         for(let i = 0; i < general.NFtToList; i++){
+            try{
             await sellNFTOrder(general.mainPrivateKey, general.price)
             console.log(`NFT ${i+1}/${general.NFtToList} was listed`)
+            }catch(e){
+                console.log(e)
+            }
         }
     }
     console.log(``)
