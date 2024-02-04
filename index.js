@@ -104,7 +104,7 @@ async function sellNFTOrder(key, price){
          function: "0xd520d8669b0a3de23119898dcdff3e0a27910db247663646ad18cf16e44c6f5::coin_listing::batch_list_token_v2",
          typeArguments: ["0x1::object::ObjectCore","0x1::aptos_coin::AptosCoin"],
          functionArguments: [
-             [o], 
+             [balance[0].token_data_id], 
              "0xb3e77042cc302994d7ae913d04286f61ecd2dbc4a73f6c7dbcb4333f3524b9d7",
              [price]
          ]
